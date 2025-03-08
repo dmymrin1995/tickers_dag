@@ -348,6 +348,7 @@ with DAG(
     
     # создать задачи на на получение информации по тикеру и End-of-Day Data
     # сложить полученную информацию в json
+    ticker_tasks = []
     for ticker in tickers:
         
         ticker_info_task = PythonOperator(
@@ -363,6 +364,7 @@ with DAG(
         )
 
         ticker_info_task >> ticker_eod_hist_task
+        ticker_tasks.append(ticker_eod_hist_task)
         
     # загрузка данных в PostgreSQL
     # собрать список json файлов собранных внутри тасок.
@@ -397,4 +399,5 @@ with DAG(
         python_callable=_get_avg_price_range,
     )
     
-    insert_ticker_info_task >> insert_eod_task >> quality_check_task >> quality_check_task >> avg_price_range_task
+    (insert_ticker_info_task >> insert_eod_task >> 
+     quality_check_task >> avg_price_range_task)
