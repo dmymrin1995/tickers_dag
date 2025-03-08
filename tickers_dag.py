@@ -14,11 +14,11 @@ from airflow.models import Variable
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 
-TICKERS_LIST_FILE = "/home/dmymrin/tickers_list_data.json"
-DATA_QUALITY_QUERYES = "/home/dmymrin/airflow/dags/tickers/data_quality.yaml"
-TICKER_INFO_HOME = "/home/dmymrin/tickers/info"
-TICKERS_EOD_HOME = "/home/dmymrin/tickers/eod_history"
-AVG_RANNGE_CSV_PATH = "/home/dmymrin/airflow/dags/tickers/"
+TICKERS_LIST_FILE = Variable.get('TICKERS_LIST_FILE')
+DATA_QUALITY_QUERYES = Variable.get('DATA_QUALITY_QUERYES')
+TICKER_INFO_HOME = Variable.get('TICKER_INFO_HOME')
+TICKERS_EOD_HOME = Variable.get('TICKERS_EOD_HOME')
+AVG_RANNGE_CSV_PATH = Variable.get('AVG_RANNGE_CSV_PATH')   
 ACCESS_KEY = Variable.get('marketstack_api_key')
 
 def _get_ticker_info(ticker_symbol: str):
@@ -157,7 +157,7 @@ def _get_ticker_eod_data(symbols: str, date_from: datetime, limit: int = 1000):
         logging.info(f"Информация для символа {symbols} сохранена")
 
     except Exception as e:
-        print(f"Error {e}")
+        logging.error(f"Error {e}")
 
 def _insert_ticker_info():
     """
@@ -348,7 +348,6 @@ with DAG(
     
     # создать задачи на на получение информации по тикеру и End-of-Day Data
     # сложить полученную информацию в json
-    ticker_tasks = []
     for ticker in tickers:
         
         ticker_info_task = PythonOperator(
@@ -364,7 +363,6 @@ with DAG(
         )
 
         ticker_info_task >> ticker_eod_hist_task
-        ticker_tasks.append(ticker_eod_hist_task)
         
     # загрузка данных в PostgreSQL
     # собрать список json файлов собранных внутри тасок.
