@@ -1,0 +1,4 @@
+tickers_info_check_duplicates: "SELECT ticker, count(ticker) FROM tickers_info GROUP BY ticker HAVING count(ticker) > 1;"
+exchanges_check_nulls: "SELECT count(*) FROM exchanges WHERE city IS NULL;"
+eod_check_negative_values: "SELECT symbol, date, open, high, low, close FROM end_of_day_data WHERE high < low OR open < 0 OR close < 0;"
+eod_check_duplicates: "SELECT symbol, date, COUNT(*) FROM end_of_day_data GROUP BY symbol, date HAVING COUNT(*) > 1;"
