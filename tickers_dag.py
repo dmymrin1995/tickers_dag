@@ -7,8 +7,6 @@ from glob import glob
 from pathlib import Path
 from datetime import datetime
 
-import pandas as pd
-import airflow
 from airflow import DAG
 from airflow.models import Variable
 from airflow.operators.python import PythonOperator
@@ -290,6 +288,14 @@ def _check_data_quality():
     logging.info("Все проверки качества данных пройдены успешно!")
 
 def _get_avg_price_range():
+    """
+    Получить данные о средних колебаниях цены по тикерам торгующимся в
+    Нью Йорке, за сентябрь 2024 года
+    
+    #TODO
+    Переделать в функцию с параметрами
+    
+    """
     pg_hook = PostgresHook(postgres_conn_id="tickers_db_connection")
 
     query = """

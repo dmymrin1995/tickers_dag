@@ -160,3 +160,22 @@ FROM end_of_day_data
 GROUP BY symbol, "date"
 HAVING COUNT(*) > 1;
 ```
+# подсчет колебаний
+для подсчета колебаний был использован следующий sql запрос
+``` sql
+SELECT                   
+    eod.symbol AS ticker,
+    AVG(eod.high - eod.low) AS avg_price_fluctuation
+FROM end_of_day_data eod
+JOIN tickers_info t ON eod.symbol = t.ticker 
+JOIN exchanges ex ON eod.exchange = ex.exchange_mic
+WHERE
+    lower(ex.city) = 'new york'
+    AND eod.date >= '2024-09-01'
+    AND eod.date <= '2024-09-30'
+GROUP BY
+    eod.symbol
+;
+```
+
+данный запрос выполняется при помощи `PostgreHook` результат сохраняется в `pandas` и далее сохраняяется в `csv`
